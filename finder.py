@@ -1,8 +1,6 @@
-import sys
-import os
-import cv2
 import copy
-sys.path.append(os.pardir)
+
+import cv2
 
 
 class Finder:
@@ -32,12 +30,18 @@ class Finder:
         file_names = []
         imgs = []
 
+        w_min = 3
+        w_max = 35
+        h_min = 20
+        h_max = 47
+
         for contour in self.contours:
             x, y, w, h = cv2.boundingRect(contour)
-            file_name = str(x) + '_' + str(y) + '.png'
-            roi = img[y:y+h, x:x+w]
 
-            file_names.append(file_name)
-            imgs.append(roi)
+            if w_min < w < w_max and h_min < h < h_max:
+                file_name = str(x) + '_' + str(y) + '.png'
+                roi = img[y:y+h, x:x+w]
+                file_names.append(file_name)
+                imgs.append(roi)
 
         return file_directory, file_names, imgs

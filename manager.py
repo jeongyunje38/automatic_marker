@@ -1,6 +1,5 @@
 import copy
 import os
-import sys
 
 import cv2
 import numpy as np
@@ -11,15 +10,15 @@ from neuralnet import Neuralnet
 from partitioner import Partitioner
 from saver import Saver
 
-sys.path.append(os.pardir)
-
 
 class Manager:
 
-    def __init__(self, img, num_of_questions, partitioner_file_directory='./answers/',
+    def __init__(self, img, num_of_questions, answers, distribution_of_marks, partitioner_file_directory='./answers/',
                  finder_file_directory='./found_numbers/', converter_file_directory='./converted_number_images/'):
         self.img = img
         self.num_of_questions = num_of_questions
+        self.answers = answers
+        self.distribution_of_marks = distribution_of_marks
         self.partitioner_file_directory = partitioner_file_directory
         self.finder_file_directory = finder_file_directory
         self.converter_file_directory = converter_file_directory
@@ -27,7 +26,6 @@ class Manager:
     def save_img(self, file_directory, file_name, img):
         saver = Saver()
         saver.save_imgs(file_directory, file_name, img)
-        print(img.shape)
 
     def save_imgs(self, file_directory, file_names, imgs):
         saver = Saver()
@@ -69,29 +67,42 @@ class Manager:
 
                 self.save_img(r_file_directory, r_file_name, r_img)
 
-    # TODO 넌 또 왜 안되냐고
     def get_answers_as_num(self, neuralnet, num_of_questions, converter_file_directory):
-        answers = []
+        student_answers = {}
         for question_num in range(1, num_of_questions + 1):
             file_directory = converter_file_directory + str(question_num) + '/'
             file_names = os.listdir(file_directory)
+            student_answers[question_num] = None
 
             for file_name in file_names:
                 file_location = file_directory + file_name
-                print(file_location)
-                found_answer_img = cv2.imread(file_location)
-                print(found_answer_img.shape)
+                found_answer_img = cv2.imread(file_location, cv2.IMREAD_GRAYSCALE)
+                found_answer_img = np.reshape(found_answer_img, 784)
 
-                y = neuralnet.predict(found_answer_img, verbose=True)
+                y = neuralnet.predict(found_answer_img)
                 answer_as_num = np.argmax(y)
-                answers.append(answer_as_num)
 
-        return answers
+                answer = answer_as_num
+                if student_answers[question_num] is not None:
+                    answer = student_answers[question_num] * 10 + answer
+                student_answers[question_num] = answer
+
+        return student_answers
+
+    def mark(self, answers, student_answers, distribution_of_marks):
+        correct_answers = {i: answers[i] for i in answers if i in student_answers and answers[i] == student_answers[i]}
+
+        score = 0
+        for key, val in correct_answers.items():
+            score += distribution_of_marks[key]
+
+        return score
 
     def activate(self):
         neuralnet = Neuralnet(input_size=784, hidden_size=50, output_size=10)
         self.partition_img(self.img, self.num_of_questions, self.partitioner_file_directory)
         self.find_nums(self.num_of_questions, self.partitioner_file_directory, self.finder_file_directory)
         self.convert_num_imgs(self.num_of_questions, self.finder_file_directory, self.converter_file_directory)
-        answers = self.get_answers_as_num(neuralnet, self.num_of_questions, self.converter_file_directory)
-        print(answers)
+        student_answers = self.get_answers_as_num(neuralnet, self.num_of_questions, self.converter_file_directory)
+        score = self.mark(self.answers, student_answers, self.distribution_of_marks)
+        print('score: ' + str(score))

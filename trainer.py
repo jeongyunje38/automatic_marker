@@ -1,7 +1,4 @@
-import sys
-import os
 import numpy as np
-sys.path.append(os.pardir)
 
 
 class Trainer:

@@ -1,16 +1,15 @@
+import copy
 import os
 import pickle
-import copy
-import cv2
 
 
 class Partitioner:
 
-    def __init__(self, img, num_of_questions, file_name, save_file_name='xywh.pkl'):
+    def __init__(self, img, num_of_questions, file_directory, save_file_name='xywh.pkl'):
         self.img = img
         self.question_num_divided_by_two = num_of_questions // 2
         self.divide_question_num_by_two = num_of_questions % 2
-        self.file_name = file_name
+        self.file_directory = file_directory
         self.save_file_name = save_file_name
         self.x1 = 0
         self.x2 = 0
@@ -23,7 +22,7 @@ class Partitioner:
 
     def partition_img(self):
         img = copy.deepcopy(self.img)
-        file_directory = './answers/'
+        file_directory = self.file_directory
         file_names = []
         imgs = []
         img_num = 1

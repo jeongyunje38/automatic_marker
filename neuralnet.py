@@ -1,9 +1,12 @@
 import os
-from useful_functions import *
 import pickle
+import time
+
 import cv2
-from trainer import Trainer
+
 from dataset.mnist import load_mnist
+from trainer import Trainer
+from useful_functions import *
 
 
 class Neuralnet:
@@ -25,7 +28,10 @@ class Neuralnet:
             ret, x_test = cv2.threshold(x_test, 0, 1, cv2.THRESH_BINARY)
 
             trainer = Trainer(self, x_train, t_train, x_test, t_test,
-                              epochs=20, batch_size=100, evaluate_sample_num_per_epoch=20)
+                              epochs=2003, batch_size=100, evaluate_sample_num_per_epoch=20)
+
+            print('start training ...')
+            time.sleep(2)
             trainer.train()
 
             self.save_params()
