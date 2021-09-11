@@ -28,7 +28,7 @@ class Neuralnet:
             ret, x_test = cv2.threshold(x_test, 0, 1, cv2.THRESH_BINARY)
 
             trainer = Trainer(self, x_train, t_train, x_test, t_test,
-                              epochs=2003, batch_size=100, evaluate_sample_num_per_epoch=20)
+                              epochs=200, batch_size=100, evaluate_sample_num_per_epoch=20)
 
             print('start training ...')
             time.sleep(2)
