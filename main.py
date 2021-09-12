@@ -13,8 +13,6 @@ manager = Manager(img, num_of_questions, answers, distribution_of_marks)
 manager.activate()
 cv2.waitKey(0)
 
-# TODO ctrl+alt+O -> import 정리
-
 '''
 network = Neuralnet(input_size=784, hidden_size=50, output_size=10)
 
