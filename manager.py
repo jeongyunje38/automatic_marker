@@ -1,5 +1,6 @@
 import copy
 import os
+import shutil
 
 import cv2
 import numpy as np
@@ -22,6 +23,14 @@ class Manager:
         self.partitioner_file_directory = partitioner_file_directory
         self.finder_file_directory = finder_file_directory
         self.converter_file_directory = converter_file_directory
+
+    def initialize(self):
+        try:
+            shutil.rmtree(self.partitioner_file_directory)
+            shutil.rmtree(self.finder_file_directory)
+            shutil.rmtree(self.converter_file_directory)
+        except:
+            None
 
     def save_img(self, file_directory, file_name, img):
         saver = Saver()
@@ -54,38 +63,45 @@ class Manager:
     def convert_num_imgs(self, num_of_questions, finder_file_directory, converter_file_directory):
         for question_num in range(1, num_of_questions + 1):
             file_directory = finder_file_directory + str(question_num) + '/'
-            file_names = os.listdir(file_directory)
+            try:
+                file_names = os.listdir(file_directory)
 
-            for file_name in file_names:
-                file_location = file_directory + file_name
-                found_num_img = cv2.imread(file_location)
+                for file_name in file_names:
+                    file_location = file_directory + file_name
+                    found_num_img = cv2.imread(file_location)
 
-                converter = Converter(found_num_img)
-                r_file_directory = converter_file_directory + '/' + str(question_num) + '/'
-                r_file_name = file_name
-                r_img = converter.convert_img()
+                    converter = Converter(found_num_img)
+                    r_file_directory = converter_file_directory + '/' + str(question_num) + '/'
+                    r_file_name = file_name
+                    r_img = converter.convert_img()
 
-                self.save_img(r_file_directory, r_file_name, r_img)
+                    self.save_img(r_file_directory, r_file_name, r_img)
+            except:
+                None
 
     def get_answers_as_num(self, neuralnet, num_of_questions, converter_file_directory):
         student_answers = {}
         for question_num in range(1, num_of_questions + 1):
             file_directory = converter_file_directory + str(question_num) + '/'
-            file_names = os.listdir(file_directory)
             student_answers[question_num] = None
 
-            for file_name in file_names:
-                file_location = file_directory + file_name
-                found_answer_img = cv2.imread(file_location, cv2.IMREAD_GRAYSCALE)
-                found_answer_img = np.reshape(found_answer_img, 784)
+            try:
+                file_names = os.listdir(file_directory)
 
-                y = neuralnet.predict(found_answer_img)
-                answer_as_num = np.argmax(y)
+                for file_name in file_names:
+                    file_location = file_directory + file_name
+                    found_answer_img = cv2.imread(file_location, cv2.IMREAD_GRAYSCALE)
+                    found_answer_img = np.reshape(found_answer_img, 784)
 
-                answer = answer_as_num
-                if student_answers[question_num] is not None:
-                    answer = student_answers[question_num] * 10 + answer
-                student_answers[question_num] = answer
+                    y = neuralnet.predict(found_answer_img)
+                    answer_as_num = np.argmax(y)
+
+                    answer = answer_as_num
+                    if student_answers[question_num] is not None:
+                        answer = student_answers[question_num] * 10 + answer
+                    student_answers[question_num] = answer
+            except:
+                student_answers[question_num] = -1
 
         return student_answers
 
@@ -99,6 +115,7 @@ class Manager:
         return score
 
     def activate(self):
+        self.initialize()
         neuralnet = Neuralnet(input_size=784, hidden_size=50, output_size=10)
         self.partition_img(self.img, self.num_of_questions, self.partitioner_file_directory)
         self.find_nums(self.num_of_questions, self.partitioner_file_directory, self.finder_file_directory)

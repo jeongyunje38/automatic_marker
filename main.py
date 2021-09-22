@@ -1,5 +1,4 @@
 import cv2
-
 from manager import Manager
 
 img = cv2.imread('answersheet_converted.jpg')
@@ -7,8 +6,8 @@ cv2.imshow('img', img)
 num_of_questions = 18
 answers = {1: 6, 2: 54, 3: 3, 4: 0, 5: 211, 6: 1, 7: 80, 8: 27, 9: 343,
            10: 512, 11: 1004, 12: 98, 13: 15, 14: 77, 15: 829, 16: 73, 17: 8, 18: 96}
-distribution_of_marks = {1: 5.0, 2: 5.0, 3: 5.0, 4: 5.0, 5: 5.0, 6: 5.0, 7: 5.0, 8: 5.0, 9: 5.0,
-                         10: 5.0, 11: 5.0, 12: 5.0, 13: 5.0, 14: 5.0, 15: 5.0, 16: 5.0, 17: 5.0, 18: 5.0}
+distribution_of_marks = {1: 4.3, 2: 4.4, 3: 4.6, 4: 4.7, 5: 4.9, 6: 5.0, 7: 5.1, 8: 5.2, 9: 5.5,
+                         10: 5.7, 11: 5.9, 12: 6.0, 13: 6.1, 14: 6.2, 15: 6.4, 16: 6.5, 17: 6.7, 18: 6.8}
 manager = Manager(img, num_of_questions, answers, distribution_of_marks)
 manager.activate()
 cv2.waitKey(0)
